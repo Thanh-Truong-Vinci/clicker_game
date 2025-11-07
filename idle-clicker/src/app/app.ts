@@ -33,6 +33,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   private moneyWatcherId: any;
   private sparkleIntervalId: any;
 
+  // Exposition vers le template
   get money() {
     return this.game.money;
   }
@@ -60,6 +61,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     this.game.start();
     this.lastMoney = this.game.money();
 
+    // surveille l'augmentation des éclats (clic + auto-farm)
     this.moneyWatcherId = setInterval(() => {
       this.checkMoneyDelta();
     }, 100);
@@ -68,14 +70,14 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
   ngAfterViewInit(): void {
     const btn = this.clickButton.nativeElement;
 
-    // état initial : hors écran, un peu plus petit
+    // état initial du bouton : hors écran, un peu plus petit
     gsap.set(btn, {
       opacity: 0,
       y: -150,
       scale: 0.9,
     });
 
-    // apparition verticale du bouton
+    // apparition verticale
     gsap.to(btn, {
       y: 0,
       opacity: 1,
@@ -84,19 +86,19 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
       ease: 'power2.out',
       delay: 0.2,
       onComplete: () => {
-        // on fait tourner le joyau (le SVG à l’intérieur)
+        // on cible le joyau (SVG) à l'intérieur pour le faire tourner
         const gem = btn.querySelector('svg.mascot') as SVGElement | null;
-        if (!gem) return;
+        if (gem) {
+          gsap.to(gem, {
+            rotation: '+=360',
+            duration: 12,       // plus grand = plus lent
+            repeat: -1,
+            ease: 'none',
+            transformOrigin: '50% 50%',
+          });
+        }
 
-        gsap.to(gem, {
-          rotation: '+=360',
-          duration: 12, // plus grand = plus lent
-          repeat: -1,
-          ease: 'none',
-          transformOrigin: '50% 50%',
-        });
-
-        // démarrage des étincelles
+        // démarrer les sparkles
         this.startSparkles();
       },
     });
@@ -104,14 +106,19 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnDestroy(): void {
     this.game.stop();
-    clearInterval(this.moneyWatcherId);
-    clearInterval(this.sparkleIntervalId);
+    if (this.moneyWatcherId) {
+      clearInterval(this.moneyWatcherId);
+    }
+    if (this.sparkleIntervalId) {
+      clearInterval(this.sparkleIntervalId);
+    }
   }
 
   click(): void {
+    // logique du jeu
     this.game.click();
 
-    // petit effet de "pop"
+    // petit pop du bouton au clic
     gsap.to(this.clickButton.nativeElement, {
       scale: 1.05,
       duration: 0.08,
@@ -119,6 +126,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
       repeat: 1,
       ease: 'power1.out',
     });
+    // shards = gérés par l’augmentation de money, pas par le clic directement
   }
 
   buyGenerator(id: string): void {
@@ -136,8 +144,11 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
+  // ---------- SURVEILLANCE DES ÉCLATS ----------
+
   private checkMoneyDelta(): void {
     const current = this.game.money();
+
     const prevInt = Math.floor(this.lastMoney);
     const currInt = Math.floor(current);
 
@@ -152,6 +163,8 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
 
     this.lastMoney = current;
   }
+
+  // ---------- FX : SHARDS ----------
 
   private spawnShards(): void {
     if (!this.fxLayer || !this.clickButton) return;
@@ -180,10 +193,13 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     const targetX = centerX + Math.cos(angleRad) * (radius + distance);
     const targetY = centerY + Math.sin(angleRad) * (radius + distance);
 
+    const startScale = this.randomRange(0.8, 1.1);
+    const endScale = this.randomRange(1.1, 1.6);
+
     gsap.set(shard, {
       x: startX,
       y: startY,
-      scale: this.randomRange(0.8, 1.1),
+      scale: startScale,
       opacity: 1,
       rotate: this.randomRange(-30, 30),
     });
@@ -192,13 +208,15 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
       duration: this.randomRange(0.55, 0.85),
       x: targetX,
       y: targetY,
-      scale: this.randomRange(1.1, 1.6),
+      scale: endScale,
       opacity: 0,
       rotate: this.randomRange(-180, 180),
       ease: 'power2.out',
       onComplete: () => shard.remove(),
     });
   }
+
+  // ---------- FX : SPARKLES (ÉTOILES SUR LE JOYAU) ----------
 
   private startSparkles(): void {
     if (this.sparkleIntervalId) return;
@@ -213,6 +231,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
 
     const layer = this.fxLayer.nativeElement;
     const btn = this.clickButton.nativeElement;
+
     const layerRect = layer.getBoundingClientRect();
     const btnRect = btn.getBoundingClientRect();
 
@@ -224,6 +243,7 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     sparkle.classList.add('sparkle');
     layer.appendChild(sparkle);
 
+    // Position aléatoire À L’INTÉRIEUR du joyau
     const angleDeg = this.randomRange(0, 360);
     const angleRad = (angleDeg * Math.PI) / 180;
     const innerRadius = radius * this.randomRange(0.1, 0.7);
@@ -231,30 +251,35 @@ export class App implements OnInit, OnDestroy, AfterViewInit {
     const x = centerX + Math.cos(angleRad) * innerRadius;
     const y = centerY + Math.sin(angleRad) * innerRadius;
 
+    const startScale = this.randomRange(0.4, 0.7);
+    const midScale = this.randomRange(0.9, 1.3);
+
     gsap.set(sparkle, {
       x,
       y,
-      scale: 0.5,
+      scale: startScale,
       opacity: 0,
       rotate: this.randomRange(0, 360),
     });
 
     gsap.to(sparkle, {
-      duration: 0.25,
-      scale: 1.1,
+      duration: 0.22,
+      scale: midScale,
       opacity: 1,
       ease: 'power2.out',
     });
 
     gsap.to(sparkle, {
-      duration: 0.35,
-      scale: 0.5,
+      duration: 0.3,
+      scale: startScale * 0.6,
       opacity: 0,
       ease: 'power1.in',
-      delay: 0.25,
+      delay: 0.22,
       onComplete: () => sparkle.remove(),
     });
   }
+
+  // ---------- UTILITAIRES ----------
 
   private randomRange(min: number, max: number): number {
     return min + Math.random() * (max - min);
