@@ -1,7 +1,8 @@
-import { Injectable, Signal, signal, computed, effect } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 
 type SaveShape = {
   money: number;
+  health: number;
   generators: { id: string; quantity: number }[];
   upgrades: { id: string; quantity: number }[];
   auto?: boolean;
@@ -37,9 +38,28 @@ export class GameService {
   private tickHandle: any = null;
   private tickAutoHandle: any = null;
 
+  // Gem progression system
+  private gemDefs = [
+    { name: 'Ruby', image: '/Ruby.png', baseClick: 1, maxHealth: 1000, color: '#ff4561' },
+    { name: 'Topaz', image: '/Topaz.png', baseClick: 5, maxHealth: 10000, color: '#ffa726' },
+    { name: 'Emerald', image: '/Emrald.png', baseClick: 25, maxHealth: 100000, color: '#66bb6a' },
+    { name: 'Sapphire', image: '/Sapphire.png', baseClick: 125, maxHealth: 1000000, color: '#42a5f5' },
+    { name: 'Diamond', image: '/Diamond.png', baseClick: 625, maxHealth: 10000000, color: '#e0e0e0' },
+  ];
+
+  private _currentGemLevel = signal(0); // 0 = Ruby, 1 = Topaz, etc.
+  currentGemLevel = this._currentGemLevel.asReadonly();
+
+  currentGem = computed(() => this.gemDefs[this._currentGemLevel()]);
+
   // Données réactives
   private _money = signal(0);
   money = this._money.asReadonly();
+
+  private _health = signal(100);
+  health = this._health.asReadonly();
+
+  maxHealth = computed(() => this.currentGem().maxHealth);
 
   private _autoClickerUnlocked = signal(false);
   autoClickerUnlocked = this._autoClickerUnlocked.asReadonly();
@@ -53,6 +73,8 @@ export class GameService {
   private upgradeDefs: UpgradeDef[] = [
     { id: 'finger-1', name: 'Doigt musclé', description: '+1 par clic', baseCost: 50, costMultiplier: 2.5, clickBonus: 1 },
     { id: 'finger-2', name: 'Gant turbo', description: '+5 par clic', baseCost: 500, costMultiplier: 2.5, clickBonus: 5 },
+    { id: 'finger-3', name: 'Marteau lourd', description: '+25 par clic', baseCost: 5000, costMultiplier: 2.5, clickBonus: 25 },
+    { id: 'finger-4', name: 'Poing de titan', description: '+100 par clic', baseCost: 50000, costMultiplier: 2.5, clickBonus: 100 },
     { id: 'efficiency', name: 'Efficacité', description: '+10% cps global', baseCost: 750, costMultiplier: 3, cpsBonus: 0.10 },
     { id: 'auto-clicker', name: 'Auto-cliqueur', description: 'Clique automatiquement 1 fois/s', baseCost: 2000, costMultiplier: 1e9, unlockAutoClicker: true },
   ];
@@ -69,15 +91,20 @@ export class GameService {
 
   // Calculs dérivés
   perClick = computed(() => {
-    const base = 1;
+    const gemBase = this.currentGem().baseClick;
     const add = this._upgrades().reduce((sum, u) => sum + (u.clickBonus ?? 0) * u.quantity, 0);
-    return base + add;
+    return gemBase + add;
   });
 
   cps = computed(() => {
     const base = this._generators().reduce((sum, g) => sum + g.cps * g.quantity, 0);
     const mult = this._upgrades().reduce((m, u) => m * (u.cpsBonus ? 1 + u.cpsBonus * u.quantity : 1), 1);
     return base * mult;
+  });
+
+  // Health regeneration per second (15% of max health)
+  healthRegen = computed(() => {
+    return this.currentGem().maxHealth * 0.15;
   });
 
   constructor() {
@@ -102,8 +129,14 @@ export class GameService {
     if (this.tickHandle) return;
     const stepMs = 200; // tick 5x/sec pour plus de fluidité
     this.tickHandle = setInterval(() => {
+      // Income generation
       const income = this.cps() * (stepMs / 1000);
       if (income > 0) this._money.update((m) => m + income);
+      
+      // Health regeneration: 15% of max health per second
+      const regenRate = 0.15; // 15% per second
+      const regenAmount = this.currentGem().maxHealth * regenRate * (stepMs / 1000);
+      this._health.update((h) => Math.min(this.currentGem().maxHealth, h + regenAmount));
     }, stepMs);
   }
 
@@ -115,8 +148,18 @@ export class GameService {
     this.stopAutoClicker();
   }
 
-  click() {
-    this._money.update((m) => m + this.perClick());
+  click(comboMultiplier: number = 1.0) {
+    const damage = this.perClick() * comboMultiplier;
+    this._health.update((h) => {
+      const newHealth = h - damage;
+      // If gem is destroyed, advance to next gem
+      if (newHealth <= 0 && this._currentGemLevel() < this.gemDefs.length - 1) {
+        this._currentGemLevel.update(level => level + 1);
+        return this.currentGem().maxHealth; // Reset to new gem's max health
+      }
+      return Math.max(0, newHealth);
+    });
+    this._money.update((m) => m + damage);
   }
 
   buyGenerator(id: string) {
@@ -164,6 +207,8 @@ export class GameService {
 
   reset() {
     this._money.set(0);
+    this._currentGemLevel.set(0);
+    this._health.set(this.gemDefs[0].maxHealth);
     this._generators.set(
       this.generatorDefs.map((g) => ({ ...g, quantity: 0, nextCost: g.baseCost }))
     );
@@ -180,8 +225,10 @@ export class GameService {
   }
 
   private save() {
-    const data: SaveShape = {
+    const data: any = {
       money: this._money(),
+      health: this._health(),
+      gemLevel: this._currentGemLevel(),
       generators: this._generators().map((g) => ({ id: g.id, quantity: g.quantity })),
       upgrades: this._upgrades().map((u) => ({ id: u.id, quantity: u.quantity })),
       auto: this._autoClickerUnlocked(),
@@ -197,27 +244,35 @@ export class GameService {
     try {
       const raw = localStorage.getItem(this.STORAGE_KEY);
       if (!raw) return;
-      const data = JSON.parse(raw) as SaveShape;
+      const data = JSON.parse(raw) as any;
       if (typeof data.money === 'number') this._money.set(data.money);
+      if (typeof data.health === 'number') this._health.set(data.health);
+      if (typeof data.gemLevel === 'number') this._currentGemLevel.set(data.gemLevel);
 
       if (Array.isArray(data.generators)) {
-        const map = new Map(data.generators.map((g) => [g.id, g.quantity] as const));
+        const map = new Map<string, number>(data.generators.map((g: any) => [g.id, g.quantity]));
         this._generators.set(
-          this.generatorDefs.map((g) => ({
-            ...g,
-            quantity: map.get(g.id) ?? 0,
-            nextCost: this.computeCost(g.baseCost, g.costMultiplier, map.get(g.id) ?? 0),
-          }))
+          this.generatorDefs.map((g) => {
+            const qty = map.get(g.id) ?? 0;
+            return {
+              ...g,
+              quantity: qty as number,
+              nextCost: this.computeCost(g.baseCost, g.costMultiplier, qty),
+            };
+          })
         );
       }
       if (Array.isArray(data.upgrades)) {
-        const map = new Map(data.upgrades.map((u) => [u.id, u.quantity] as const));
+        const map = new Map<string, number>(data.upgrades.map((u: any) => [u.id, u.quantity]));
         this._upgrades.set(
-          this.upgradeDefs.map((u) => ({
-            ...u,
-            quantity: map.get(u.id) ?? 0,
-            nextCost: this.computeCost(u.baseCost, u.costMultiplier, map.get(u.id) ?? 0),
-          }))
+          this.upgradeDefs.map((u) => {
+            const qty = map.get(u.id) ?? 0;
+            return {
+              ...u,
+              quantity: qty as number,
+              nextCost: this.computeCost(u.baseCost, u.costMultiplier, qty),
+            };
+          })
         );
       }
       if (typeof data.auto === 'boolean') {

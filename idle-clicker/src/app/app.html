@@ -49,6 +49,30 @@
 
   <!-- ZONE DE JEU / JOYAU -->
   <section class="play">
+    <div class="health">
+      <div class="health-row">
+        <div class="health-label">{{ currentGem().name }} - Durabilité</div>
+        <div class="health-value">{{ fmt(health()) }} / {{ fmt(maxHealth()) }}</div>
+      </div>
+      <div class="health-row" style="margin-bottom: 0.2rem;">
+        <div class="health-label" style="font-size: 0.85rem; color: #10b981;">↻ Régénération</div>
+        <div class="health-value" style="font-size: 0.85rem; color: #10b981;">+{{ fmt(healthRegen()) }}/s</div>
+      </div>
+      <div
+        class="health-bar"
+        role="progressbar"
+        aria-label="Santé"
+        aria-valuemin="0"
+        [attr.aria-valuemax]="maxHealth()"
+        [attr.aria-valuenow]="health()"
+      >
+  <div class="health-fill" 
+       [style.width.%]="(health() / maxHealth()) * 100"
+       [style.background]="'linear-gradient(90deg, ' + gemColor + ', ' + gemColor + 'dd)'"
+       [style.box-shadow]="'0 8px 22px ' + gemColor + '48, 0 0 36px ' + gemColor + '24'"
+       [style.filter]="'drop-shadow(0 0 14px ' + gemColor + '28)'"></div>
+      </div>
+    </div>
     <!-- couche d’effets pour les éclats -->
     <div class="fx-layer" #fxLayer></div>
 
@@ -59,133 +83,28 @@
       (click)="click()"
       aria-label="Cliquer pour gagner des éclats"
     >
-      <!-- Joyau rond facetté (sans taches blanches) -->
-      <svg
-        viewBox="0 0 120 120"
-        xmlns="http://www.w3.org/2000/svg"
-        class="mascot"
-      >
-        <defs>
-          <!-- Halo externe -->
-          <radialGradient id="gemHaloRound" cx="50%" cy="50%" r="55%">
-            <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.9" />
-            <stop offset="60%" stop-color="#1d4ed8" stop-opacity="0.4" />
-            <stop offset="100%" stop-color="transparent" />
-          </radialGradient>
-
-          <!-- Dégradé principal (gemme ronde) -->
-          <radialGradient id="gemRoundBody" cx="50%" cy="35%" r="60%">
-            <stop offset="0%" stop-color="#f9fafb" stop-opacity="0.95" />
-            <stop offset="25%" stop-color="#bfdbfe" stop-opacity="0.95" />
-            <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.98" />
-            <stop offset="100%" stop-color="#1e3a8a" stop-opacity="1" />
-          </radialGradient>
-
-          <!-- Facettes froides -->
-          <linearGradient id="facetRoundCool" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#e0f2fe" stop-opacity="0.9" />
-            <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.1" />
-          </linearGradient>
-
-          <!-- Facettes chaudes internes -->
-          <linearGradient id="facetRoundWarm" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.8" />
-            <stop offset="100%" stop-color="#facc15" stop-opacity="0.05" />
-          </linearGradient>
-        </defs>
-
-        <!-- Halo autour du joyau -->
-        <circle cx="60" cy="60" r="52" fill="url(#gemHaloRound)" />
-
-        <!-- Corps principal : disque -->
-        <circle
-          cx="60"
-          cy="60"
-          r="42"
-          fill="url(#gemRoundBody)"
-          stroke="#e5e7eb"
-          stroke-width="1.5"
-        />
-
-        <!-- Facettes radiales (triangles) -->
-        <!-- Top -->
-        <polygon
-          points="60,60 60,18 90,26"
-          fill="url(#facetRoundCool)"
-          opacity="0.5"
-        />
-        <polygon
-          points="60,60 30,26 60,18"
-          fill="url(#facetRoundCool)"
-          opacity="0.45"
-        />
-
-        <!-- Haut-droite / haut-gauche -->
-        <polygon
-          points="60,60 90,26 102,52"
-          fill="#1d4ed8"
-          opacity="0.35"
-        />
-        <polygon
-          points="60,60 18,52 30,26"
-          fill="#2563eb"
-          opacity="0.35"
-        />
-
-        <!-- Droite / gauche -->
-        <polygon
-          points="60,60 102,52 102,68"
-          fill="#1e40af"
-          opacity="0.4"
-        />
-        <polygon
-          points="60,60 18,68 18,52"
-          fill="#1e40af"
-          opacity="0.4"
-        />
-
-        <!-- Bas-droite / bas-gauche -->
-        <polygon
-          points="60,60 102,68 88,96"
-          fill="#111827"
-          opacity="0.6"
-        />
-        <polygon
-          points="60,60 32,96 18,68"
-          fill="#111827"
-          opacity="0.6"
-        />
-
-        <!-- Bas -->
-        <polygon
-          points="60,60 88,96 60,104"
-          fill="#020617"
-          opacity="0.75"
-        />
-        <polygon
-          points="60,60 60,104 32,96"
-          fill="#020617"
-          opacity="0.75"
-        />
-
-        <!-- Inclusions internes (profondeur, sans taches blanches) -->
-        <ellipse
-          cx="52"
-          cy="58"
-          rx="11"
-          ry="18"
-          fill="url(#facetRoundWarm)"
-          opacity="0.6"
-        />
-        <ellipse
-          cx="70"
-          cy="63"
-          rx="9"
-          ry="15"
-          fill="url(#facetRoundWarm)"
-          opacity="0.45"
-        />
-      </svg>
+      <!-- Joyau : utiliser le fichier SVG externe placé dans public/ -->
+      <span class="mascot-wrap">
+        <!-- trapezoid effects will live in this layer (multiple, created dynamically) -->
+        <div class="trapezoid-layer" #trapezoidLayer aria-hidden="true"></div>
+        <img [src]="currentGem().image" class="mascot base" [alt]="currentGem().name" draggable="false" />
+        
+        <!-- Combo bar indicator (single horizontal bar, right of ruby) -->
+        @if (combo() > 0) {
+          <div class="combo-bar-container">
+            <div class="combo-multiplier-display" [class.active]="combo() >= 10" [attr.data-tier]="getDisplayedTier()">
+              {{ getDisplayedMultiplier() }}
+            </div>
+            <div class="combo-bar-track">
+              <div class="combo-bar-fill" 
+                   [style.width.%]="comboTimeProgress()"
+                   [attr.data-tier]="getDisplayedTier()">
+              </div>
+              <div class="combo-count">{{ combo() }}</div>
+            </div>
+          </div>
+        }
+      </span>
     </button>
   </section>
 
