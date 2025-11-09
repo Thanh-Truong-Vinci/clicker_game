@@ -1,0 +1,22 @@
+.combo-bar-container { position: absolute; left: calc(100% + 4rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; z-index: 100; pointer-events: none; }
+.combo-multiplier-display { font-size: 1.8rem; font-weight: 900; color: rgba(255, 255, 255, 0.6); text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; transition: color 0.3s ease, transform 0.3s ease; &.active { background: linear-gradient(135deg, #7c4dff, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 2px 8px rgba(124, 77, 255, 0.6)); } }
+.combo-multiplier-display[data-tier="1"] { animation: combo-shake-slow 1.2s ease-in-out infinite; }
+.combo-multiplier-display[data-tier="2"] { animation: combo-shake-medium 0.9s ease-in-out infinite; }
+.combo-multiplier-display[data-tier="3"] { animation: combo-shake-fast 0.6s ease-in-out infinite; }
+.combo-multiplier-display[data-tier="4"] { animation: combo-shake-extreme 0.3s ease-in-out infinite; }
+
+.combo-bar-track { position: relative; width: 280px; height: 28px; background: rgba(0, 0, 0, 0.4); border-radius: 14px; overflow: hidden; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 0, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); }
+.combo-bar-fill { position: absolute; left: 0; top: 0; height: 100%; transition: width 0.1s ease-out, background 0.3s ease-out; border-radius: 12px; box-shadow: 0 0 15px currentColor; }
+.combo-count { display: none; }
+
+.combo-bar-fill[data-tier="0"] { background: linear-gradient(90deg, #666, #999); color: rgba(148, 163, 184, 0.5); }
+.combo-bar-fill[data-tier="1"] { background: linear-gradient(90deg, #4caf50, #8bc34a); color: rgba(16, 185, 129, 0.7); }
+.combo-bar-fill[data-tier="2"] { background: linear-gradient(90deg, #00bcd4, #26c6da); color: rgba(6, 182, 212, 0.7); }
+.combo-bar-fill[data-tier="3"] { background: linear-gradient(90deg, #2196f3, #03a9f4); color: rgba(59, 130, 246, 0.7); }
+.combo-bar-fill[data-tier="4"] { background: linear-gradient(90deg, #f44336, #ff1744); color: rgba(239, 68, 68, 0.8); animation: combo-bar-glow 0.5s ease-in-out infinite alternate; }
+
+@keyframes combo-shake-slow { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-2px); } }
+@keyframes combo-shake-medium { 0%, 100% { transform: translateX(0) rotate(0deg); } 50% { transform: translateX(-3px) rotate(-2deg); } }
+@keyframes combo-shake-fast { 0%, 100% { transform: translateX(0) rotate(0deg) scale(1); } 50% { transform: translateX(-4px) rotate(-3deg) scale(1.05); } }
+@keyframes combo-shake-extreme { 0%, 100% { transform: translateX(0) rotate(0deg) scale(1); } 20%, 60% { transform: translateX(-8px) rotate(-8deg) scale(1.15); } 40%, 80% { transform: translateX(8px) rotate(8deg) scale(1.15); } }
+@keyframes combo-bar-glow { from { box-shadow: 0 0 20px currentColor, 0 0 40px currentColor; filter: brightness(1); } to { box-shadow: 0 0 30px currentColor, 0 0 60px currentColor; filter: brightness(1.2); } }
