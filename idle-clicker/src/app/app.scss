@@ -7,20 +7,14 @@
   --primary: #7c4dff;
   --primary-2: #00e5ff;
   --accent: #10b981;
-  --ruby-light: #fd8f9f; /* pale / highlight */
-  --ruby: #ff4561; /* vivid ruby */
-  --ruby-accent: #ff2d4b; /* stronger accent */
+  --ruby-light: #fd8f9f;
+  --ruby: #ff4561;
+  --ruby-accent: #ff2d4b;
   --sapphire: #3b82f6;
-  /* new: pale / highlight */
   --sapphire-light: #bfe9ff;
-  /* optional extra vivid */
   --sapphire-accent: #0ea5ff;
-
   min-height: 100dvh;
-  background:
-    radial-gradient(60% 80% at 70% 20%, rgba(124, 77, 255, 0.15), transparent 60%),
-    radial-gradient(50% 70% at 20% 80%, rgba(0, 229, 255, 0.12), transparent 60%),
-    var(--bg);
+  background: radial-gradient(60% 80% at 70% 20%, rgba(124, 77, 255, 0.15), transparent 60%), radial-gradient(50% 70% at 20% 80%, rgba(0, 229, 255, 0.12), transparent 60%), var(--bg);
   color: var(--text);
   padding: 1rem;
   display: grid;
@@ -36,12 +30,11 @@
   gap: 1rem;
 }
 
-/* Health bar styles */
 .health {
-  width: 300px; /* slightly larger than the button for prominence */
-  margin-bottom: 3rem; /* increased spacing to lift the bar away from the button */
+  width: 300px;
+  margin-bottom: 3rem;
   position: relative;
-  z-index: 120; /* ensure the health bar is visible above FX and trapezoids */
+  z-index: 120;
 }
 .health-row {
   display: flex;
@@ -129,24 +122,19 @@
   border-color: rgba(255, 255, 255, .2);
 }
 
-/* zone de jeu */
 .play {
   position: relative;
   display: grid;
   place-items: center;
 }
 
-/* couche FX au-dessus de la zone de jeu */
 .fx-layer {
   position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: visible;
-  /* bring the FX layer above the button so sparkles can appear in front */
   z-index: 50;
 }
-
-/* bouton principal */
 .big-button {
   display: grid;
   place-items: center;
@@ -163,22 +151,16 @@
   font-size: 1.1rem;
   text-shadow: 0 2px 8px rgba(0, 0, 0, .4);
   box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  transition:
-    filter .2s ease,
-    box-shadow .2s ease;
+  transition: filter .2s ease, box-shadow .2s ease;
+  &:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, .5);
+  }
+  &:active {
+    filter: brightness(1.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
+  }
 }
-
-.big-button:hover {
-  filter: brightness(1.05);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, .5);
-}
-
-.big-button:active {
-  filter: brightness(1.15);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .4);
-}
-
-/* Combo bar indicator (single horizontal bar on right of ruby) */
 .combo-bar-container {
   position: absolute;
   left: calc(100% + 4rem);
@@ -210,25 +192,10 @@
 }
 
 /* Speed up animation based on tier level */
-.combo-multiplier-display[data-tier="0"] {
-  animation: none;
-}
-
-.combo-multiplier-display[data-tier="1"] {
-  animation: combo-shake-slow 1.2s ease-in-out infinite;
-}
-
-.combo-multiplier-display[data-tier="2"] {
-  animation: combo-shake-medium 0.9s ease-in-out infinite;
-}
-
-.combo-multiplier-display[data-tier="3"] {
-  animation: combo-shake-fast 0.6s ease-in-out infinite;
-}
-
-.combo-multiplier-display[data-tier="4"] {
-  animation: combo-shake-extreme 0.3s ease-in-out infinite;
-}
+.combo-multiplier-display[data-tier="1"] { animation: combo-shake-slow 1.2s ease-in-out infinite; }
+.combo-multiplier-display[data-tier="2"] { animation: combo-shake-medium 0.9s ease-in-out infinite; }
+.combo-multiplier-display[data-tier="3"] { animation: combo-shake-fast 0.6s ease-in-out infinite; }
+.combo-multiplier-display[data-tier="4"] { animation: combo-shake-extreme 0.3s ease-in-out infinite; }
 
 .combo-bar-track {
   position: relative;
@@ -251,38 +218,13 @@
   box-shadow: 0 0 15px currentColor;
 }
 
-.combo-count {
-  display: none; /* Hidden as requested */
-}
+.combo-count { display: none; }
 
-/* Color tiers based on combo level */
-.combo-bar-fill[data-tier="0"] {
-  background: linear-gradient(90deg, #666, #999);
-  color: rgba(148, 163, 184, 0.5);
-}
-
-.combo-bar-fill[data-tier="1"] {
-  background: linear-gradient(90deg, #4caf50, #8bc34a);
-  color: rgba(16, 185, 129, 0.7);
-}
-
-.combo-bar-fill[data-tier="2"] {
-  background: linear-gradient(90deg, #00bcd4, #26c6da);
-  color: rgba(6, 182, 212, 0.7);
-}
-
-.combo-bar-fill[data-tier="3"] {
-  background: linear-gradient(90deg, #2196f3, #03a9f4);
-  color: rgba(59, 130, 246, 0.7);
-}
-
-.combo-bar-fill[data-tier="4"] {
-  background: linear-gradient(90deg, #f44336, #ff1744);
-  color: rgba(239, 68, 68, 0.8);
-  animation: combo-bar-glow 0.5s ease-in-out infinite alternate;
-}
-
-/* Shake animations with increasing intensity */
+.combo-bar-fill[data-tier="0"] { background: linear-gradient(90deg, #666, #999); color: rgba(148, 163, 184, 0.5); }
+.combo-bar-fill[data-tier="1"] { background: linear-gradient(90deg, #4caf50, #8bc34a); color: rgba(16, 185, 129, 0.7); }
+.combo-bar-fill[data-tier="2"] { background: linear-gradient(90deg, #00bcd4, #26c6da); color: rgba(6, 182, 212, 0.7); }
+.combo-bar-fill[data-tier="3"] { background: linear-gradient(90deg, #2196f3, #03a9f4); color: rgba(59, 130, 246, 0.7); }
+.combo-bar-fill[data-tier="4"] { background: linear-gradient(90deg, #f44336, #ff1744); color: rgba(239, 68, 68, 0.8); animation: combo-bar-glow 0.5s ease-in-out infinite alternate; }
 @keyframes combo-shake-slow {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-2px); }
@@ -301,57 +243,35 @@
   75% { transform: translateX(4px) rotate(3deg) scale(1.05); }
 }
 
-@keyframes combo-shake-faster {
-  0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
-  25% { transform: translateX(-6px) rotate(-5deg) scale(1.1); }
-  75% { transform: translateX(6px) rotate(5deg) scale(1.1); }
-}
-
 @keyframes combo-shake-extreme {
   0%, 100% { transform: translateX(0) rotate(0deg) scale(1); }
-  10% { transform: translateX(-8px) rotate(-8deg) scale(1.15); }
-  30% { transform: translateX(8px) rotate(8deg) scale(1.15); }
-  50% { transform: translateX(-8px) rotate(-8deg) scale(1.15); }
-  70% { transform: translateX(8px) rotate(8deg) scale(1.15); }
-  90% { transform: translateX(-8px) rotate(-8deg) scale(1.15); }
+  10%, 50%, 90% { transform: translateX(-8px) rotate(-8deg) scale(1.15); }
+  30%, 70% { transform: translateX(8px) rotate(8deg) scale(1.15); }
 }
 
 @keyframes combo-bar-glow {
-  from {
-    box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
-    filter: brightness(1);
-  }
-  to {
-    box-shadow: 0 0 30px currentColor, 0 0 60px currentColor;
-    filter: brightness(1.2);
-  }
+  from { box-shadow: 0 0 20px currentColor, 0 0 40px currentColor; filter: brightness(1); }
+  to { box-shadow: 0 0 30px currentColor, 0 0 60px currentColor; filter: brightness(1.2); }
 }
 
-/* joyau */
 .mascot {
   display: block;
   margin: 0 auto;
   width: 80%;
-  /* ensure transforms (rotation/scale) use the svg bounding box */
   transform-box: fill-box;
   transform-origin: 50% 50%;
-  filter:
-    drop-shadow(0 0 22px rgba(96, 165, 250, 0.9))
-    drop-shadow(0 0 50px rgba(59, 130, 246, 0.7));
-  /* prevent the browser from allowing this image to be dragged */
+  filter: drop-shadow(0 0 22px rgba(96, 165, 250, 0.9)) drop-shadow(0 0 50px rgba(59, 130, 246, 0.7));
   -webkit-user-drag: none;
   user-select: none;
 }
 
 .mascot-wrap {
   position: relative;
-  display: inline-block; /* ou block selon ton layout */
-  width: 220px; /* adapte la taille si nécessaire, ou utilise % pour responsive */
+  display: inline-block;
+  width: 220px;
   height: auto;
   overflow: visible;
 }
-
-/* container for multiple trapezoids */
 .trapezoid-layer {
   position: absolute;
   left: 0;
@@ -363,7 +283,6 @@
   z-index: 0;
 }
 
-/* Trapezoid accent that starts small at the center and expands outward, gentle rotation */
 .trapezoid {
   position: absolute;
   left: var(--tr-left, 50%);
@@ -384,15 +303,10 @@
 }
 
 @keyframes trapezoid-rotate {
-  from {
-    transform: translate(-50%, -40%) rotate(calc(var(--tr-rot, 0deg) - 8deg)) scale(1);
-  }
-  to {
-    transform: translate(-50%, -40%) rotate(calc(var(--tr-rot, 0deg) + 8deg)) scale(1);
-  }
+  from { transform: translate(-50%, -40%) rotate(calc(var(--tr-rot, 0deg) - 8deg)) scale(1); }
+  to { transform: translate(-50%, -40%) rotate(calc(var(--tr-rot, 0deg) + 8deg)) scale(1); }
 }
 
-/* image de base */
 .mascot.base {
   display: block;
   width: 100%;
@@ -402,8 +316,6 @@
   -webkit-user-drag: none;
   user-select: none;
 }
-
-/* panneaux */
 .panels {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -502,39 +414,31 @@
   }
 }
 
-/* Éclats de cristal */
 .shard {
   position: absolute;
   width: 18px;
   height: 26px;
-  /* shape approximating a small faceted gem (diamond) */
   clip-path: polygon(50% 0%, 85% 30%, 70% 100%, 30% 100%, 15% 30%);
   background: linear-gradient(135deg, #ffd6da 0%, #ff5670 45%, #9b0630 100%);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    0 6px 18px rgba(255, 86, 112, 0.28),
-    0 0 26px rgba(255, 86, 112, 0.22);
+  box-shadow: 0 6px 18px rgba(255, 86, 112, 0.28), 0 0 26px rgba(255, 86, 112, 0.22);
   opacity: 1;
   transform-origin: center;
   will-change: transform, opacity;
-  z-index: 1; /* shards behind sparkles */
+  z-index: 1;
+  &::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 22%;
+    width: 60%;
+    height: 30%;
+    transform: translateX(-50%) rotate(-18deg);
+    background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.0));
+    opacity: 0.55;
+    pointer-events: none;
+  }
 }
-
-.shard::before {
-  /* small internal highlight to simulate a facet */
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 22%;
-  width: 60%;
-  height: 30%;
-  transform: translateX(-50%) rotate(-18deg);
-  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.0));
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-/* Sparkles : mini étoiles en croix sur le joyau */
 .sparkle {
   position: absolute;
   width: 0;
@@ -542,34 +446,23 @@
   pointer-events: none;
   opacity: 0;
   transform-origin: center;
-  filter:
-    drop-shadow(0 0 6px rgba(191, 219, 254, 0.95))
-    drop-shadow(0 0 12px rgba(59, 130, 246, 0.9));
-  z-index: 100; /* ensure sparkles render above shards and mascot */
-}
-
-.sparkle::before,
-.sparkle::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  border-radius: 999px;
-  background: linear-gradient(
-    to bottom,
-    #ffffff 0%,
-    #e5f0ff 40%,
-    rgba(191, 219, 254, 0.0) 100%
-  );
-  transform: translate(-50%, -50%);
-}
-
-.sparkle::before {
-  width: 3px;
-  height: 16px;
-}
-
-.sparkle::after {
-  width: 16px;
-  height: 3px;
+  filter: drop-shadow(0 0 6px rgba(191, 219, 254, 0.95)) drop-shadow(0 0 12px rgba(59, 130, 246, 0.9));
+  z-index: 100;
+  &::before, &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 999px;
+    background: linear-gradient(to bottom, #ffffff 0%, #e5f0ff 40%, rgba(191, 219, 254, 0.0) 100%);
+    transform: translate(-50%, -50%);
+  }
+  &::before {
+    width: 3px;
+    height: 16px;
+  }
+  &::after {
+    width: 16px;
+    height: 3px;
+  }
 }
