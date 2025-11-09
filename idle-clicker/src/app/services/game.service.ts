@@ -40,11 +40,11 @@ export class GameService {
 
   // Gem progression system
   private gemDefs = [
-    { name: 'Ruby', image: '/Ruby.png', baseClick: 1, maxHealth: 1000, color: '#ff4561' },
-    { name: 'Topaz', image: '/Topaz.png', baseClick: 5, maxHealth: 10000, color: '#ffa726' },
-    { name: 'Emerald', image: '/Emrald.png', baseClick: 25, maxHealth: 100000, color: '#66bb6a' },
-    { name: 'Sapphire', image: '/Sapphire.png', baseClick: 125, maxHealth: 1000000, color: '#42a5f5' },
-    { name: 'Diamond', image: '/Diamond.png', baseClick: 625, maxHealth: 10000000, color: '#e0e0e0' },
+    { name: 'Ruby', image: 'Ruby.png', baseClick: 1, maxHealth: 1000, color: '#ff4561' },
+    { name: 'Topaz', image: 'Topaz.png', baseClick: 5, maxHealth: 10000, color: '#ffa726' },
+    { name: 'Emerald', image: 'Emrald.png', baseClick: 25, maxHealth: 100000, color: '#66bb6a' },
+    { name: 'Sapphire', image: 'Sapphire.png', baseClick: 125, maxHealth: 1000000, color: '#42a5f5' },
+    { name: 'Diamond', image: 'Diamond.png', baseClick: 625, maxHealth: 10000000, color: '#e0e0e0' },
   ];
 
   private _currentGemLevel = signal(0); // 0 = Ruby, 1 = Topaz, etc.
