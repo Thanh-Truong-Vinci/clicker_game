@@ -1,4 +1,4 @@
-.combo-bar-container { position: absolute; left: calc(100% + 4rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; z-index: 100; pointer-events: none; }
+.combo-bar-container { position: static;  margin-top: 4rem; transform: translateY(-50%); display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; z-index: 100; pointer-events: none; }
 .combo-multiplier-display { font-size: 1.8rem; font-weight: 900; color: rgba(255, 255, 255, 0.6); text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); letter-spacing: 1px; transition: color 0.3s ease, transform 0.3s ease; &.active { background: linear-gradient(135deg, #7c4dff, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 2px 8px rgba(124, 77, 255, 0.6)); } }
 .combo-multiplier-display[data-tier="1"] { animation: combo-shake-slow 1.2s ease-in-out infinite; }
 .combo-multiplier-display[data-tier="2"] { animation: combo-shake-medium 0.9s ease-in-out infinite; }
