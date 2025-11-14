@@ -1,4 +1,28 @@
 <main class="game">
+  <!-- Overlay d'intro plein écran -->
+  <div class="intro-overlay" #introOverlay>
+    <div class="intro-content">
+      <div class="intro-logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="intro-g" x1="0" x2="1">
+              <stop offset="0%" stop-color="#7C4DFF" />
+              <stop offset="100%" stop-color="#00E5FF" />
+            </linearGradient>
+          </defs>
+          <path
+            fill="url(#intro-g)"
+            d="M32 3l7.8 15.8L57 21l-12.5 12 3 17-15.5-8.2L16.5 50l3-17L7 21l17.2-2.2L32 3z"
+          />
+        </svg>
+      </div>
+      <h2 class="intro-title">Idle Clicker</h2>
+      <p class="intro-subtitle">
+        Initialisation du concentrateur d’éclats…
+      </p>
+    </div>
+  </div>
+
   <header class="hud">
     <div class="brand">
       <div class="logo" aria-hidden="true">
@@ -58,7 +82,7 @@
               <div class="icon" aria-hidden="true">⚙️</div>
               <div class="meta">
                 <div class="name">{{ g.name }}</div>
-                <div class="desc">+{{ g.cps }} / sec</div>
+                <div class="desc">+{{ fmt(g.cps) }} / sec</div>
               </div>
             </div>
             <div class="item-actions">
@@ -80,8 +104,12 @@
       <section class="play">
         <div class="health">
           <div class="health-row">
-            <div class="health-label">{{ currentGem().name }} - Durabilité</div>
-            <div class="health-value">{{ fmt(health()) }} / {{ fmt(maxHealth()) }}</div>
+            <div class="health-label">
+              {{ currentGem().name }} - Durabilité
+            </div>
+            <div class="health-value">
+              {{ fmt(health()) }} / {{ fmt(maxHealth()) }}
+            </div>
           </div>
           <div class="health-row" style="margin-bottom: 0.2rem">
             <div class="health-label" style="font-size: 0.85rem; color: #10b981">
@@ -108,6 +136,7 @@
             ></div>
           </div>
         </div>
+
         <!-- couche d’effets pour les éclats -->
         <div class="fx-layer" #fxLayer></div>
 
@@ -118,9 +147,7 @@
           (click)="click()"
           aria-label="Cliquer pour gagner des éclats"
         >
-          <!-- Joyau : utiliser le fichier SVG externe placé dans public/ -->
           <span class="mascot-wrap">
-            <!-- trapezoid effects will live in this layer (multiple, created dynamically) -->
             <div class="trapezoid-layer" #trapezoidLayer aria-hidden="true"></div>
             <img
               [src]="currentGem().image"
@@ -130,26 +157,26 @@
             />
           </span>
         </button>
-         <!-- Combo bar indicator (single horizontal bar, right of ruby) -->
-            @if (combo() > 0) {
-            <div class="combo-bar-container">
-              <div
-                class="combo-multiplier-display"
-                [class.active]="combo() >= 10"
-                [attr.data-tier]="getDisplayedTier()"
-              >
-                {{ getDisplayedMultiplier() }}
-              </div>
-              <div class="combo-bar-track">
-                <div
-                  class="combo-bar-fill"
-                  [style.width.%]="comboTimeProgress()"
-                  [attr.data-tier]="getDisplayedTier()"
-                ></div>
-                <div class="combo-count">{{ combo() }}</div>
-              </div>
-            </div>
-            }
+
+        @if (combo() > 0) {
+        <div class="combo-bar-container">
+          <div
+            class="combo-multiplier-display"
+            [class.active]="combo() >= 10"
+            [attr.data-tier]="getDisplayedTier()"
+          >
+            {{ getDisplayedMultiplier() }}
+          </div>
+          <div class="combo-bar-track">
+            <div
+              class="combo-bar-fill"
+              [style.width.%]="comboTimeProgress()"
+              [attr.data-tier]="getDisplayedTier()"
+            ></div>
+            <div class="combo-count">{{ combo() }}</div>
+          </div>
+        </div>
+        }
       </section>
     </div>
 
@@ -183,6 +210,22 @@
       </div>
     </div>
   </section>
+
+  <!-- Popup de reset -->
+  @if (showResetDialog()) {
+  <div class="modal-backdrop">
+    <div class="modal" #resetDialog>
+      <h2>Réinitialiser la partie ?</h2>
+      <p>
+        Toute ta progression (éclats, générateurs, améliorations) sera effacée.
+      </p>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="cancelReset()">Annuler</button>
+        <button class="btn-danger" (click)="confirmReset()">Réinitialiser</button>
+      </div>
+    </div>
+  </div>
+  }
 
   <footer class="footer">
     <p>Projet démo — sauvegarde locale automatique. Aucune donnée personnelle.</p>
