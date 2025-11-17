@@ -1,0 +1,28 @@
+<div class="side-panel right">
+  <div class="panel">
+    <h2>Améliorations</h2>
+    <ul class="list">
+      @for (u of upgrades; track u.id) {
+      <li>
+        <div class="item-main">
+          <div class="icon" aria-hidden="true">✨</div>
+          <div class="meta">
+            <div class="name">{{ u.name }}</div>
+            <div class="desc">{{ u.description }}</div>
+          </div>
+        </div>
+        <div class="item-actions">
+          <div class="price">{{ fmt(u.nextCost) }}</div>
+          <button
+            (click)="onBuy(u.id)"
+            [disabled]="money < u.nextCost || (u.id === 'auto-clicker' && u.quantity >= 1)"
+          >
+            Acheter
+          </button>
+          <div class="qty">x{{ u.quantity }}</div>
+        </div>
+      </li>
+      }
+    </ul>
+  </div>
+</div>

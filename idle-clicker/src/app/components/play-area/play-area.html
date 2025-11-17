@@ -1,0 +1,79 @@
+<section class="play">
+  <!-- Barre de vie -->
+  <div class="health">
+    <div class="health-row">
+      <div class="health-label">
+        {{ currentGem().name }} - Durabilité
+      </div>
+      <div class="health-value">
+        {{ fmt(health()) }} / {{ fmt(maxHealth()) }}
+      </div>
+    </div>
+    <div class="health-row" style="margin-bottom: 0.2rem">
+      <div class="health-label" style="font-size: 0.85rem; color: #10b981">
+        ↻ Régénération
+      </div>
+      <div class="health-value" style="font-size: 0.85rem; color: #10b981">
+        +{{ fmt(healthRegen()) }}/s
+      </div>
+    </div>
+    <div
+      class="health-bar"
+      role="progressbar"
+      aria-label="Santé"
+      aria-valuemin="0"
+      [attr.aria-valuemax]="maxHealth()"
+      [attr.aria-valuenow]="health()"
+    >
+      <div
+        class="health-fill"
+        [style.width.%]="(health() / maxHealth()) * 100"
+        [style.background]="'linear-gradient(90deg, ' + gemColor + ', ' + gemColor + 'dd)'"
+        [style.box-shadow]="'0 8px 22px ' + gemColor + '48, 0 0 36px ' + gemColor + '24'"
+        [style.filter]="'drop-shadow(0 0 14px ' + gemColor + '28)'"
+      ></div>
+    </div>
+  </div>
+
+  <!-- couche d’effets pour les éclats / sparkles -->
+  <div class="fx-layer" #fxLayer></div>
+
+  <!-- Bouton principal / joyau -->
+  <button
+    class="big-button"
+    #clickButton
+    (click)="click()"
+    aria-label="Cliquer pour gagner des éclats"
+  >
+    <span class="mascot-wrap">
+      <div class="trapezoid-layer" #trapezoidLayer aria-hidden="true"></div>
+      <img
+        [src]="currentGem().image"
+        class="mascot base"
+        [alt]="currentGem().name"
+        draggable="false"
+      />
+    </span>
+  </button>
+
+  <!-- Barre de combo -->
+  @if (combo() > 0) {
+  <div class="combo-bar-container">
+    <div
+      class="combo-multiplier-display"
+      [class.active]="combo() >= 10"
+      [attr.data-tier]="getDisplayedTier()"
+    >
+      {{ getDisplayedMultiplier() }}
+    </div>
+    <div class="combo-bar-track">
+      <div
+        class="combo-bar-fill"
+        [style.width.%]="comboTimeProgress()"
+        [attr.data-tier]="getDisplayedTier()"
+      ></div>
+      <div class="combo-count">{{ combo() }}</div>
+    </div>
+  </div>
+  }
+</section>

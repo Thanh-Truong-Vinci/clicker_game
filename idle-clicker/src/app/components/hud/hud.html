@@ -1,0 +1,52 @@
+<header class="hud">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="g" x1="0" x2="1">
+            <stop offset="0%" stop-color="#7C4DFF" />
+            <stop offset="100%" stop-color="#00E5FF" />
+          </linearGradient>
+        </defs>
+        <path
+          fill="url(#g)"
+          d="M32 3l7.8 15.8L57 21l-12.5 12 3 17-15.5-8.2L16.5 50l3-17L7 21l17.2-2.2L32 3z"
+        />
+      </svg>
+    </div>
+    <h1>{{ title }}</h1>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="label">Éclats</span>
+      <span class="value">{{ fmt(money) }}</span>
+    </div>
+
+    <div class="stat" title="Par clic">
+      <span class="label">/clic</span>
+      <span class="value">{{ fmt(perClick) }}</span>
+    </div>
+
+    <div class="stat" title="Par seconde">
+      <span class="label">/sec</span>
+      <span class="value">{{ fmt(cps) }}</span>
+    </div>
+
+    @if (autoClickerUnlocked) {
+      <div class="stat" title="Auto-cliqueur actif">
+        <span class="label">Auto</span>
+        <span class="value">ON</span>
+      </div>
+    }
+
+    <button
+      class="ghost"
+      type="button"
+      (click)="onResetClick()"
+      aria-label="Réinitialiser la partie"
+    >
+      ↺
+    </button>
+  </div>
+</header>

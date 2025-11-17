@@ -23,208 +23,57 @@
     </div>
   </div>
 
-  <header class="hud">
-    <div class="brand">
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g" x1="0" x2="1">
-              <stop offset="0%" stop-color="#7C4DFF" />
-              <stop offset="100%" stop-color="#00E5FF" />
-            </linearGradient>
-          </defs>
-          <path
-            fill="url(#g)"
-            d="M32 3l7.8 15.8L57 21l-12.5 12 3 17-15.5-8.2L16.5 50l3-17L7 21l17.2-2.2L32 3z"
-          />
-        </svg>
-      </div>
-      <h1>{{ title() }}</h1>
-    </div>
+  <!-- HUD en haut -->
+  <app-hud
+    [title]="title()"
+    [money]="money()"
+    [perClick]="perClick()"
+    [cps]="cps()"
+    [autoClickerUnlocked]="autoClickerUnlocked()"
+    [fmt]="fmt"
+    (resetRequested)="reset()"
+  ></app-hud>
 
-    <div class="stats">
-      <div class="stat">
-        <span class="label">Éclats</span>
-        <span class="value">{{ fmt(money()) }}</span>
-      </div>
-
-      <div class="stat" title="Par clic">
-        <span class="label">/clic</span>
-        <span class="value">{{ fmt(perClick()) }}</span>
-      </div>
-
-      <div class="stat" title="Par seconde">
-        <span class="label">/sec</span>
-        <span class="value">{{ fmt(cps()) }}</span>
-      </div>
-
-      @if (autoClickerUnlocked()) {
-      <div class="stat" title="Auto-cliqueur actif">
-        <span class="label">Auto</span>
-        <span class="value">ON</span>
-      </div>
-      }
-
-      <button class="ghost" (click)="reset()" aria-label="Réinitialiser">↺</button>
-    </div>
-  </header>
-
-  <!-- ZONE CENTRALE DU JEU -->
+  <!-- Layout principal: générateurs / zone centrale / upgrades -->
   <section class="game-layout">
     <!-- Générateurs à gauche -->
-    <div class="side-panel left">
-      <div class="panel">
-        <h2>Générateurs</h2>
-        <ul class="list">
-          @for (g of generators(); track g.id) {
-          <li>
-            <div class="item-main">
-              <div class="icon" aria-hidden="true">⚙️</div>
-              <div class="meta">
-                <div class="name">{{ g.name }}</div>
-                <div class="desc">+{{ fmt(g.cps) }} / sec</div>
-              </div>
-            </div>
-            <div class="item-actions">
-              <div class="price">{{ fmt(g.nextCost) }}</div>
-              <button (click)="buyGenerator(g.id)" [disabled]="money() < g.nextCost">
-                Acheter
-              </button>
-              <div class="qty">x{{ g.quantity }}</div>
-            </div>
-          </li>
-          }
-        </ul>
-      </div>
-    </div>
+    <app-generators-panel
+      class="side-panel"
+      [generators]="generators()"
+      [money]="money()"
+      [fmt]="fmt"
+      (buy)="buyGenerator($event)"
+    ></app-generators-panel>
 
-    <!-- Pierre centrale -->
+    <!-- Zone centrale : joyau + combo + FX -->
     <div class="center">
-      <!-- ZONE DE JEU / JOYAU -->
-      <section class="play">
-        <div class="health">
-          <div class="health-row">
-            <div class="health-label">
-              {{ currentGem().name }} - Durabilité
-            </div>
-            <div class="health-value">
-              {{ fmt(health()) }} / {{ fmt(maxHealth()) }}
-            </div>
-          </div>
-          <div class="health-row" style="margin-bottom: 0.2rem">
-            <div class="health-label" style="font-size: 0.85rem; color: #10b981">
-              ↻ Régénération
-            </div>
-            <div class="health-value" style="font-size: 0.85rem; color: #10b981">
-              +{{ fmt(healthRegen()) }}/s
-            </div>
-          </div>
-          <div
-            class="health-bar"
-            role="progressbar"
-            aria-label="Santé"
-            aria-valuemin="0"
-            [attr.aria-valuemax]="maxHealth()"
-            [attr.aria-valuenow]="health()"
-          >
-            <div
-              class="health-fill"
-              [style.width.%]="(health() / maxHealth()) * 100"
-              [style.background]="'linear-gradient(90deg, ' + gemColor + ', ' + gemColor + 'dd)'"
-              [style.box-shadow]="'0 8px 22px ' + gemColor + '48, 0 0 36px ' + gemColor + '24'"
-              [style.filter]="'drop-shadow(0 0 14px ' + gemColor + '28)'"
-            ></div>
-          </div>
-        </div>
-
-        <!-- couche d’effets pour les éclats -->
-        <div class="fx-layer" #fxLayer></div>
-
-        <!-- bouton principal -->
-        <button
-          class="big-button"
-          #clickButton
-          (click)="click()"
-          aria-label="Cliquer pour gagner des éclats"
-        >
-          <span class="mascot-wrap">
-            <div class="trapezoid-layer" #trapezoidLayer aria-hidden="true"></div>
-            <img
-              [src]="currentGem().image"
-              class="mascot base"
-              [alt]="currentGem().name"
-              draggable="false"
-            />
-          </span>
-        </button>
-
-        @if (combo() > 0) {
-        <div class="combo-bar-container">
-          <div
-            class="combo-multiplier-display"
-            [class.active]="combo() >= 10"
-            [attr.data-tier]="getDisplayedTier()"
-          >
-            {{ getDisplayedMultiplier() }}
-          </div>
-          <div class="combo-bar-track">
-            <div
-              class="combo-bar-fill"
-              [style.width.%]="comboTimeProgress()"
-              [attr.data-tier]="getDisplayedTier()"
-            ></div>
-            <div class="combo-count">{{ combo() }}</div>
-          </div>
-        </div>
-        }
-      </section>
+      <app-play-area></app-play-area>
     </div>
 
     <!-- Améliorations à droite -->
-    <div class="side-panel right">
-      <div class="panel">
-        <h2>Améliorations</h2>
-        <ul class="list">
-          @for (u of upgrades(); track u.id) {
-          <li>
-            <div class="item-main">
-              <div class="icon" aria-hidden="true">✨</div>
-              <div class="meta">
-                <div class="name">{{ u.name }}</div>
-                <div class="desc">{{ u.description }}</div>
-              </div>
-            </div>
-            <div class="item-actions">
-              <div class="price">{{ fmt(u.nextCost) }}</div>
-              <button
-                (click)="buyUpgrade(u.id)"
-                [disabled]="money() < u.nextCost || (u.id === 'auto-clicker' && u.quantity >= 1)"
-              >
-                Acheter
-              </button>
-              <div class="qty">x{{ u.quantity }}</div>
-            </div>
-          </li>
-          }
-        </ul>
-      </div>
-    </div>
+    <app-upgrades-panel
+      class="side-panel"
+      [upgrades]="upgrades()"
+      [money]="money()"
+      [fmt]="fmt"
+      (buy)="buyUpgrade($event)"
+    ></app-upgrades-panel>
   </section>
 
   <!-- Popup de reset -->
   @if (showResetDialog()) {
-  <div class="modal-backdrop">
-    <div class="modal" #resetDialog>
-      <h2>Réinitialiser la partie ?</h2>
-      <p>
-        Toute ta progression (éclats, générateurs, améliorations) sera effacée.
-      </p>
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="cancelReset()">Annuler</button>
-        <button class="btn-danger" (click)="confirmReset()">Réinitialiser</button>
+    <div class="modal-backdrop">
+      <div class="modal" #resetDialog>
+        <h2>Réinitialiser la partie ?</h2>
+        <p>
+          Toute ta progression (éclats, générateurs, améliorations) sera effacée.
+        </p>
+        <div class="modal-actions">
+          <button class="btn-secondary" (click)="cancelReset()">Annuler</button>
+          <button class="btn-danger" (click)="confirmReset()">Réinitialiser</button>
+        </div>
       </div>
     </div>
-  </div>
   }
 
   <footer class="footer">

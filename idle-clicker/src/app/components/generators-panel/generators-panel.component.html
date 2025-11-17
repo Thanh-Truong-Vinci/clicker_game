@@ -1,0 +1,25 @@
+<div class="side-panel left">
+  <div class="panel">
+    <h2>Générateurs</h2>
+    <ul class="list">
+      @for (g of generators; track g.id) {
+      <li>
+        <div class="item-main">
+          <div class="icon" aria-hidden="true">⚙️</div>
+          <div class="meta">
+            <div class="name">{{ g.name }}</div>
+            <div class="desc">+{{ g.cps }} / sec</div>
+          </div>
+        </div>
+        <div class="item-actions">
+          <div class="price">{{ fmt(g.nextCost) }}</div>
+          <button (click)="onBuy(g.id)" [disabled]="money < g.nextCost">
+            Acheter
+          </button>
+          <div class="qty">x{{ g.quantity }}</div>
+        </div>
+      </li>
+      }
+    </ul>
+  </div>
+</div>
