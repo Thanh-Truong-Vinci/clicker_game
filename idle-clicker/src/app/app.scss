@@ -524,3 +524,51 @@
     background: #dc2626;
   }
 }
+/* Assure que la zone de jeu peut accueillir un overlay interne */
+.play {
+  position: relative;
+}
+
+/* Overlay plein écran pour l'explosion du joyau */
+.gem-explosion-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;              /* activé en JS */
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 999;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 1));
+}
+
+.explosion-center {
+  position: relative;
+  width: 220px;
+  height: 220px;
+}
+
+/* Particules qui partent du centre */
+.explosion-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffffff, #fb7185, #f97373);
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.8);
+  transform: translate(-50%, -50%);
+}
+
+/* Cercle de flash au centre */
+.explosion-flash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  border: 2px solid rgba(248, 250, 252, 0.9);
+  box-shadow: 0 0 40px rgba(248, 250, 252, 0.7);
+  transform: translate(-50%, -50%);
+}

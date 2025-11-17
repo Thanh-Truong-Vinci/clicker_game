@@ -1,25 +1,27 @@
 import {
-  AfterViewInit,
   Component,
-  ElementRef,
-  OnDestroy,
   OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ElementRef,
   ViewChild,
   signal,
   effect,
+  ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { gsap } from 'gsap';
 import { GameService } from '../../services/game.service';
+import { gsap } from 'gsap';
 
 @Component({
-  selector: 'app-play-area',
   standalone: true,
+  selector: 'app-play-area',
   imports: [CommonModule],
   templateUrl: './play-area.html',
   styleUrl: './play-area.scss',
+  encapsulation: ViewEncapsulation.None,
 })
-export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
+export class PlayArea implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('clickButton', { static: true })
   clickButton!: ElementRef<HTMLButtonElement>;
 
@@ -33,24 +35,12 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
   private moneyWatcherId: any;
   private sparkleIntervalId: any;
 
-  // Combo system
   protected combo = signal(0);
   protected comboTimeProgress = signal(0);
-  private lastClickTime = 0;
   private comboTimeoutId: any;
   private comboProgressInterval: any;
   private lastTier = 0;
   private currentTrapCount = 4;
-
-  constructor(private game: GameService) {
-    // Met à jour dynamiquement le nombre de trapèzes quand le combo change
-    effect(() => {
-      const trapCount = this.getTrapezoidCount();
-      if (trapCount !== this.currentTrapCount) {
-        this.updateTrapezoids();
-      }
-    });
-  }
 
   // Exposition vers le template
   get health() {
@@ -70,8 +60,19 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
   }
 
   fmt = (v: number) => this.game.formatNumber(v);
+  Math = Math;
 
-  // Combo helpers
+  constructor(private game: GameService) {
+    effect(() => {
+      const _ = this.combo(); // pour déclencher sur changement de combo
+      const trapCount = this.getTrapezoidCount();
+      if (trapCount !== this.currentTrapCount) {
+        this.updateTrapezoids();
+      }
+    });
+  }
+
+  // Helpers combo
   getTierForCombo(combo: number): number {
     if (combo < 10) return 0;
     if (combo < 25) return 1;
@@ -93,7 +94,6 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
     const range = ranges[tier];
     const comboInTier = Math.min(combo - range.min, range.max - range.min);
     const tierSize = range.max - range.min;
-
     return (comboInTier / tierSize) * 100;
   }
 
@@ -106,11 +106,8 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
     return multipliers[this.lastTier] || 'x1.0';
   }
 
-  // Lifecycle
   ngOnInit(): void {
-    // GameService est démarré par App
     this.lastMoney = this.game.money();
-
     this.moneyWatcherId = setInterval(() => {
       this.checkMoneyDelta();
     }, 100);
@@ -119,14 +116,12 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     const btn = this.clickButton.nativeElement;
 
-    // état initial du bouton : hors écran, un peu plus petit
     gsap.set(btn, {
       opacity: 0,
       y: -150,
       scale: 0.9,
     });
 
-    // apparition verticale
     gsap.to(btn, {
       y: 0,
       opacity: 1,
@@ -170,10 +165,9 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ---------- INTERACTIONS ----------
+  // ---------- CLIC PRINCIPAL ----------
 
   click(): void {
-    const now = Date.now();
     const previousCombo = this.combo();
 
     if (previousCombo === 0) {
@@ -183,15 +177,13 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const currentCombo = this.combo();
-    this.lastClickTime = now;
-
     const currentTier = this.getTierForCombo(currentCombo);
     const previousTier = this.getTierForCombo(previousCombo);
-
     let effectiveTier = previousTier;
 
     if (currentTier > previousTier) {
       this.comboTimeProgress.set(100);
+
       setTimeout(() => {
         this.lastTier = currentTier;
         const tierProgress = this.getProgressInTier(currentCombo);
@@ -217,28 +209,11 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
 
     const btnElem = this.clickButton.nativeElement as HTMLElement;
     const gem = btnElem.querySelector('.mascot') as HTMLElement | null;
-    const crack = btnElem.querySelector('.mascot.crack') as HTMLElement | null;
 
     if (gem) {
       gsap.killTweensOf(gem);
       gsap.fromTo(
         gem,
-        { scale: 1 },
-        {
-          scale: 1.05,
-          duration: 0.08,
-          yoyo: true,
-          repeat: 1,
-          ease: 'power1.out',
-          overwrite: 'auto',
-        },
-      );
-    }
-
-    if (crack) {
-      gsap.killTweensOf(crack);
-      gsap.fromTo(
-        crack,
         { scale: 1 },
         {
           scale: 1.05,
@@ -333,17 +308,35 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
 
   private lightenColor(color: string, percent: number): string {
     const num = parseInt(color.replace('#', ''), 16);
-    const r = Math.min(255, ((num >> 16) & 0xff) + Math.floor((255 * percent) / 100));
-    const g = Math.min(255, ((num >> 8) & 0xff) + Math.floor((255 * percent) / 100));
-    const b = Math.min(255, (num & 0xff) + Math.floor((255 * percent) / 100));
+    const r = Math.min(
+      255,
+      ((num >> 16) & 0xff) + Math.floor((255 * percent) / 100),
+    );
+    const g = Math.min(
+      255,
+      ((num >> 8) & 0xff) + Math.floor((255 * percent) / 100),
+    );
+    const b = Math.min(
+      255,
+      (num & 0xff) + Math.floor((255 * percent) / 100),
+    );
     return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
   }
 
   private darkenColor(color: string, percent: number): string {
     const num = parseInt(color.replace('#', ''), 16);
-    const r = Math.max(0, ((num >> 16) & 0xff) - Math.floor((255 * percent) / 100));
-    const g = Math.max(0, ((num >> 8) & 0xff) - Math.floor((255 * percent) / 100));
-    const b = Math.max(0, (num & 0xff) - Math.floor((255 * percent) / 100));
+    const r = Math.max(
+      0,
+      ((num >> 16) & 0xff) - Math.floor((255 * percent) / 100),
+    );
+    const g = Math.max(
+      0,
+      ((num >> 8) & 0xff) - Math.floor((255 * percent) / 100),
+    );
+    const b = Math.max(
+      0,
+      (num & 0xff) - Math.floor((255 * percent) / 100),
+    );
     return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
   }
 
@@ -409,7 +402,7 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // ---------- COMBO & TRAPEZOIDS ----------
+  // ---------- COMBO & TRAPÈZES ----------
 
   private getTierMultiplier(tier: number): number {
     const multipliers = [1.0, 1.5, 2.0, 2.5, 3.0];
@@ -418,7 +411,7 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
 
   private getTrapezoidCount(): number {
     const c = this.combo();
-    const gemLevel = this.game.currentGemLevel();
+    const gemLevel = this.game.currentGemLevel(); // Signal readonly → number
 
     const baseCount = 4 + Math.floor(c / 5);
     const multiplier = Math.pow(1.5, gemLevel);
@@ -447,7 +440,7 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
             opacity: 0,
             scale: 0.5,
             duration: 0.3,
-            onComplete: () => trapToRemove.remove(),
+            onComplete: () => (trapToRemove as HTMLElement).remove(),
           });
         }
       }
@@ -456,7 +449,7 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
     this.currentTrapCount = targetCount;
   }
 
-  private createSingleTrapezoid(index: number, totalCount: number): void {
+  private createSingleTrapezoid(_index: number, _totalCount: number): void {
     if (!this.trapezoidLayer || !this.clickButton) return;
     const layer = this.trapezoidLayer.nativeElement;
 
@@ -549,7 +542,9 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
 
         if (currentTierCheck === nextTierCheck) {
           const partialProgress = (elapsed % drainRate) / drainRate;
-          const currentComboProgress = this.getProgressInTier(currentComboValue);
+          const currentComboProgress = this.getProgressInTier(
+            currentComboValue,
+          );
           const nextComboProgress = this.getProgressInTier(nextCombo);
           const interpolatedProgress =
             currentComboProgress -
@@ -563,7 +558,7 @@ export class PlayArea implements OnInit, AfterViewInit, OnDestroy {
       if (this.comboProgressInterval) {
         clearInterval(this.comboProgressInterval);
       }
-    }, 30000);
+    }, 30_000);
   }
 
   // ---------- UTILITAIRES ----------
