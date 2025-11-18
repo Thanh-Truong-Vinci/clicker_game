@@ -42,10 +42,10 @@ export class GameService {
   // Plus de baseClick ici, juste maxHealth + visuel
   private gemDefs = [
     { name: 'Ruby', image: 'Ruby.png', maxHealth: 50, color: '#ff4561' },
-    { name: 'Topaz', image: 'Topaz.png', maxHealth: 10_000, color: '#ffa726' },
-    { name: 'Emerald', image: 'Emrald.png', maxHealth: 100_000, color: '#66bb6a' },
-    { name: 'Sapphire', image: 'Sapphire.png', maxHealth: 1_000_000, color: '#42a5f5' },
-    { name: 'Diamond', image: 'Diamond.png', maxHealth: 10_000_000, color: '#e0e0e0' },
+    { name: 'Topaz', image: 'Topaz.png', maxHealth: 1_000, color: '#ffa726' },
+    { name: 'Emerald', image: 'Emrald.png', maxHealth: 10_000, color: '#66bb6a' },
+    { name: 'Sapphire', image: 'Sapphire.png', maxHealth: 100_000, color: '#42a5f5' },
+    { name: 'Diamond', image: 'Diamond.png', maxHealth: 1_000_000, color: '#e0e0e0' },
   ];
 
   private _currentGemLevel = signal(0);
@@ -170,7 +170,7 @@ export class GameService {
       return 0;
     }
 
-    const regenRate = 0.15; // 15% / sec pour les autres
+    const regenRate = 0.05; // 5% / sec pour les autres
     return base * regenRate;
   });
 
