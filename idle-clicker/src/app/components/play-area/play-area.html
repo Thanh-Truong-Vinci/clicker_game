@@ -39,22 +39,30 @@
   <div class="fx-layer" #fxLayer></div>
 
   <!-- Bouton principal / joyau -->
-  <button
-    class="big-button"
-    #clickButton
-    (click)="click()"
-    aria-label="Cliquer pour gagner des éclats"
-  >
-    <span class="mascot-wrap">
-      <div class="trapezoid-layer" #trapezoidLayer aria-hidden="true"></div>
-      <img
-        [src]="currentGem().image"
-        class="mascot base"
-        [alt]="currentGem().name"
-        draggable="false"
-      />
-    </span>
-  </button>
+  <div class="gem-viewport" [style.--gemColor]="gemColor || '#f5d547'">
+    <div class="gem-glow" aria-hidden="true"></div>
+    <button
+      class="big-button"
+      #clickButton
+      (click)="click()"
+      [style.--gemColor]="gemColor || '#f5d547'"
+      aria-label="Cliquer pour gagner des éclats"
+    >
+      <span class="mascot-wrap">
+        <div class="trapezoid-layer" #trapezoidLayer aria-hidden="true"></div>
+        <img
+          [src]="currentGem().image"
+          class="mascot base"
+          [alt]="currentGem().name"
+          draggable="false"
+        />
+      </span>
+    </button>
+
+    <div class="fx-layer" #fxLayer>
+      <!-- ...existing sparkles/triangles... -->
+    </div>
+  </div>
 
   <!-- Barre de combo -->
   @if (combo() > 0) {
