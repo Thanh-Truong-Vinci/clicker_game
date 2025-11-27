@@ -8,6 +8,7 @@ import {
   signal,
   effect,
   ViewEncapsulation,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GameService } from '../../services/game.service';
@@ -565,5 +566,12 @@ export class PlayArea implements OnInit, OnDestroy, AfterViewInit {
 
   private randomRange(min: number, max: number): number {
     return min + Math.random() * (max - min);
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+  }
+
+  private updateFxClip(): void {
   }
 }

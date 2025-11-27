@@ -307,10 +307,48 @@
   inset: 0;
   pointer-events: none;
   overflow: visible;
-  z-index: 50;
+  z-index: 2;
 }
 
+.gem-viewport {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  overflow: visible;
+  isolation: isolate;
+}
+
+/* Halo brillant 360° (sans radar) */
+.gem-glow {
+  position: absolute;
+  inset: -36px;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.95;
+  background:
+    radial-gradient(closest-side,
+      color-mix(in srgb, var(--gemColor, #f5d547), white 38%) 0%,
+      color-mix(in srgb, var(--gemColor, #f5d547), black 16%) 58%,
+      transparent 78%),
+    radial-gradient(farthest-side,
+      color-mix(in srgb, var(--gemColor, #f5d547), white 22%) 0%,
+      transparent 72%);
+  filter: blur(20px);
+  animation: gem-pulse 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes gem-pulse {
+  from { filter: blur(16px) brightness(1);   opacity: 0.8;  transform: scale(0.985); }
+  to   { filter: blur(24px) brightness(1.18); opacity: 1;    transform: scale(1.015); }
+}
+
+/* Le bouton doit laisser sortir le halo */
 .big-button {
+  position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   gap: 0.5rem;
@@ -334,6 +372,7 @@
   transition:
     filter 0.2s ease,
     box-shadow 0.2s ease;
+  overflow: visible;
 
   &:hover {
     filter: brightness(1.05);
@@ -344,6 +383,30 @@
     filter: brightness(1.15);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   }
+}
+
+/* Halo doux additionnel sur le bouton (déjà présent, renforcé) */
+.big-button::before {
+  content: "";
+  position: absolute;
+  inset: -22px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 50% 50%,
+      color-mix(in srgb, var(--gemColor), white 28%) 0%,
+      color-mix(in srgb, var(--gemColor), black 10%) 36%,
+      transparent 72%);
+  filter: blur(16px);
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  animation: gem-glow 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes gem-glow {
+  from { filter: blur(14px) brightness(1); opacity: 0.85; }
+  to   { filter: blur(20px) brightness(1.18); opacity: 1; }
 }
 
 .mascot {
